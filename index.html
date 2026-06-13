@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KiantUI Emulator</title>
+    <style>
+        :root {
+            --phone-radius: 48px;
+            --screen-radius: 44px;
+            --app-inner-radius: 42px;
+            --ios-accent: #007aff;
+            --text-dark: #000000;
+            --text-muted: #8e8e93;
+        }
+
+        body {
+            background-color: #e0e0e0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: white;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* Phone Frame Container */
+        .phone-frame {
+            width: 375px;
+            height: 712px;
+            background: #0d0d0d;
+            border-radius: var(--phone-radius);
+            padding: 4px; 
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3), inset 0 0 2px 1px rgba(255,255,255,0.15);
+            position: relative;
+        }
+
+        /* Hardware Red Power Button */
+        .power-button {
+            position: absolute;
+            right: -6px;
+            top: 140px;
+            width: 6px;
+            height: 50px;
+            background: linear-gradient(to bottom, #ff3b30, #cc241d);
+            border-radius: 0 3px 3px 0;
+            cursor: pointer;
+            z-index: 2000;
+            box-shadow: 1px 2px 4px rgba(0,0,0,0.3);
+            transition: transform 0.1s;
+        }
+
+        .power-button:active {
+            transform: translateX(-2px);
+        }
+
+        /* Screen Wrapper */
+        .screen {
+            width: 100%;
+            height: 100%;
+            border-radius: var(--screen-radius);
+            overflow: hidden;
+            position: relative;
+            background-color: #000;
+        }
+
+        /* Hardware Display Punch Hole */
+        .punch-hole {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 17px;
+            height: 17px;
+            background-color: #000000;
+            border-radius: 50%;
+            z-index: 1000;
+            box-shadow: inset 0 0 1px rgba(255,255,255,0.2);
+            pointer-events: none;
+        }
+
+        /* High-Quality Cinematic Mountain Wallpaper */
+        .wallpaper {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1000&q=90');
+            background-size: cover;
+            background-position: center;
+            transition: transform 0.6s cubic-bezier(0.25, 1, 0.3, 1);
+            z-index: 1;
+        }
+
+        /* Fluid Wallpaper Zoom Scale Layers */
+        .screen.lock-active .wallpaper {
+            transform: scale(1.25); /* Zoomed out image layer state on lockscreen */
+        }
+        .screen.app-open .wallpaper {
+            transform: scale(1.18); /* Zoomed state inside app */
+        }
+
+        /* Status Bar */
+        .status-bar {
+            height: 44px;
+            padding: 0 26px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 600;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+            transition: color 0.35s ease, opacity 0.2s;
+        }
+
+        .screen.app-open .status-bar {
+            color: #000000;
+            text-shadow: none;
+        }
+
+        /* Home Screen UI */
+        .home-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding-top: 54px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 2;
+            transform: scale(1);
+            transition: opacity 0.35s ease, transform 0.6s cubic-bezier(0.25, 1, 0.3, 1);
+        }
+
+        /* Animate layout downward when locked or screen app scales up */
+        .screen.lock-active .home-screen {
+            opacity: 0;
+            transform: scale(0.85);
+            pointer-events: none;
+        }
+        .screen.app-open .home-screen {
+            opacity: 0;
+            transform: scale(0.88);
+            pointer-events: none;
+        }
+
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 22px;
+            padding: 22px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .app-icon-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .app-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 30px;
+            transition: transform 0.15s ease;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+        }
+
+        .app-icon-wrapper:active .app-icon {
+            transform: scale(0.85);
+        }
+
+        .app-icon.settings {
+            background: linear-gradient(135deg, #a2a2a7, #636366);
+        }
+
+        .app-label {
+            font-size: 12px;
+            margin-top: 6px;
+            color: #fff;
+            text-align: center;
+            font-weight: 500;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        }
+
+        /* Settings App View */
+        .app-view {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #f2f2f7; 
+            color: var(--text-dark); 
+            z-index: 5;
+            display: flex;
+            flex-direction: column;
+            padding-top: 54px;
+            box-sizing: border-box;
+            
+            opacity: 0;
+            border-radius: var(--screen-radius);
+            transform: scale(0.05);
+            transform-origin: 52px 114px; 
+            transition: transform 0.55s cubic-bezier(0.25, 1, 0.3, 1), 
+                        opacity 0.25s linear, 
+                        border-radius 0.55s cubic-bezier(0.25, 1, 0.3, 1);
+            pointer-events: none;
+        }
+
+        .app-view.active {
+            opacity: 1;
+            transform: scale(1);
+            border-radius: var(--app-inner-radius);
+            pointer-events: auto;
+        }
+
+        .settings-header {
+            padding: 15px 24px;
+            font-size: 28px;
+            font-weight: 700;
+            border-bottom: 1px solid #e5e5ea; 
+        }
+
+        .settings-list {
+            padding: 16px 20px;
+        }
+
+        .settings-item {
+            background: #ffffff; 
+            padding: 16px;
+            border-radius: 14px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+            border: 1px solid rgba(0,0,0,0.02);
+        }
+
+        .settings-item span:last-child {
+            color: var(--text-muted);
+        }
+
+        /* Navigation Home Bar / Lock Unlock Gesture Zone */
+        .home-bar-zone {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            padding-bottom: 12px;
+            box-sizing: border-box;
+            z-index: 1100;
+            cursor: pointer;
+        }
+
+        .home-bar {
+            width: 140px;
+            height: 5px;
+            background-color: rgba(255, 255, 255, 0.85);
+            border-radius: 100px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+            transition: transform 0.2s, background-color 0.2s, opacity 0.2s;
+        }
+
+        .screen.app-open .home-bar {
+            background-color: rgba(0, 0, 0, 0.45);
+            box-shadow: none;
+        }
+
+        /* Immersive Lock Screen Overlays */
+        .lockscreen-view {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            z-index: 900;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 70px 24px 60px 24px;
+            box-sizing: border-box;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(0);
+            transition: opacity 0.4s ease, transform 0.5s cubic-bezier(0.25, 1, 0.3, 1);
+        }
+
+        .screen.lock-active .lockscreen-view {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .screen.lock-active.unlock-anim .lockscreen-view {
+            opacity: 0;
+            transform: translateY(-100%);
+        }
+
+        .lock-clock {
+            font-size: 72px;
+            font-weight: 200;
+            text-align: center;
+            text-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .lock-hint {
+            font-size: 15px;
+            font-weight: 500;
+            opacity: 0.8;
+            letter-spacing: 0.3px;
+            animation: bounceSwipeHint 2s infinite;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+        }
+
+        @keyframes bounceSwipeHint {
+            0%, 100% { transform: translateY(0); opacity: 0.6; }
+            50% { transform: translateY(-6px); opacity: 1; }
+        }
+
+        /* Direct System Blackout Matrix (Power Off Layer) */
+        .blackout-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000000;
+            z-index: 1500;
+            opacity: 1;
+            pointer-events: auto;
+            transition: opacity 0.3s ease;
+        }
+
+        .screen.system-on .blackout-layer {
+            opacity: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="phone-frame">
+        
+        <div class="power-button" id="hardwarePowerBtn"></div>
+
+        <div class="screen" id="phoneScreen">
+            
+            <div class="blackout-layer" id="systemBlackout"></div>
+            
+            <div class="punch-hole"></div>
+            
+            <div class="wallpaper"></div>
+            
+            <div class="status-bar" id="statusBar">
+                <span class="system-time">12:00</span>
+                <div style="display: flex; gap: 6px;">
+                    <span>📶</span>
+                    <span>🔋</span>
+                </div>
+            </div>
+
+            <div class="lockscreen-view" id="lockscreenView">
+                <div class="lock-clock system-time">12:00</div>
+                <div class="lock-hint">Swipe up from line to unlock</div>
+            </div>
+
+            <div class="home-screen">
+                <div class="app-grid">
+                    <div class="app-icon-wrapper" onclick="openSettings()">
+                        <div class="app-icon settings">⚙️</div>
+                        <div class="app-label">Settings</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="app-view" id="settingsApp">
+                <div class="settings-header">Settings</div>
+                <div class="settings-list">
+                    <div class="settings-item">
+                        <span>System Name</span>
+                        <span>KiantUI v2.0</span>
+                    </div>
+                    <div class="settings-item">
+                        <span>Power Actions</span>
+                        <span>Red Hardware Key</span>
+                    </div>
+                    <div class="settings-item">
+                        <span>Lock Status</span>
+                        <span>Biometric Secured</span>
+                    </div>
+                    <div class="settings-item" style="color: var(--ios-accent); cursor: pointer;">
+                        <span>System Update</span>
+                        <span>Up to date</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="home-bar-zone" id="gestureZone">
+                <div class="home-bar" id="homeIndicatorLine"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // System State Matrices
+        let isPowerOn = false;
+        let isLocked = true;
+
+        const phoneScreen = document.getElementById('phoneScreen');
+        const systemBlackout = document.getElementById('systemBlackout');
+        const settingsApp = document.getElementById('settingsApp');
+        const gestureZone = document.getElementById('gestureZone');
+        const hardwarePowerBtn = document.getElementById('hardwarePowerBtn');
+        const homeIndicatorLine = document.getElementById('homeIndicatorLine');
+
+        // Dynamic Clock Implementation
+        function updateClock() {
+            const now = new Date();
+            let hours = now.getHours();
+            let minutes = now.getMinutes();
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            document.querySelectorAll('.system-time').forEach(el => {
+                el.textContent = `${hours}:${minutes}`;
+            });
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Hardware Power Toggle Action Hook
+        hardwarePowerBtn.addEventListener('click', () => {
+            if (!isPowerOn) {
+                // Turn On Cycle -> Show Lock Screen
+                isPowerOn = true;
+                isLocked = true;
+                phoneScreen.classList.remove('app-open');
+                settingsApp.classList.remove('active');
+                phoneScreen.classList.remove('unlock-anim');
+                phoneScreen.classList.add('lock-active');
+                phoneScreen.classList.add('system-on');
+                homeIndicatorLine.style.opacity = "1";
+            } else {
+                // Turn Off Cycle -> Complete Interface Kill
+                isPowerOn = false;
+                phoneScreen.classList.remove('system-on');
+                homeIndicatorLine.style.opacity = "0";
+            }
+        });
+
+        // App Navigation Controller Actions
+        function openSettings() {
+            if (!isPowerOn || isLocked) return;
+            phoneScreen.classList.add('app-open');
+            settingsApp.classList.add('active');
+        }
+
+        function closeSettings() {
+            phoneScreen.classList.remove('app-open');
+            settingsApp.classList.remove('active');
+        }
+
+        // Advanced Multi-State Swipe Tracking Matrix
+        let startY = 0;
+        let isSwiping = false;
+
+        // Touch Hooks (Mobile Engine)
+        gestureZone.addEventListener('touchstart', (e) => {
+            if (!isPowerOn) return;
+            startY = e.touches[0].clientY;
+            isSwiping = true;
+        }, { passive: true });
+
+        gestureZone.addEventListener('touchend', (e) => {
+            if (!isSwiping) return;
+            let endY = e.changedTouches[0].clientY;
+            evaluateGesture(startY, endY);
+            isSwiping = false;
+        }, { passive: true });
+
+        // Mouse Hooks (Desktop Engine emulation)
+        gestureZone.addEventListener('mousedown', (e) => {
+            if (!isPowerOn) return;
+            startY = e.clientY;
+            isSwiping = true;
+            
+            function onMouseUp(upEvent) {
+                if (isSwiping) {
+                    evaluateGesture(startY, upEvent.clientY);
+                    isSwiping = false;
+                }
+                document.removeEventListener('mouseup', onMouseUp);
+            }
+            document.addEventListener('mouseup', onMouseUp);
+        });
+
+        // Context-Aware Gesture Router 
+        function evaluateGesture(start, end) {
+            const distanceUp = start - end;
+            if (distanceUp > 25) { // Minimum threshold reached
+                if (isLocked) {
+                    // Unlock Sequence Transition Configuration
+                    phoneScreen.classList.add('unlock-anim');
+                    setTimeout(() => {
+                        phoneScreen.classList.remove('lock-active');
+                        phoneScreen.classList.remove('unlock-anim');
+                        isLocked = false;
+                    }, 450); // Matches runtime duration properties perfectly
+                } else if (settingsApp.classList.contains('active')) {
+                    // App termination sequence action
+                    closeSettings();
+                }
+            }
+        }
+    </script>
+</body>
+</html>
