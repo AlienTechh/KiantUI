@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>KiantUI Emulator</title>
     <style>
         :root {
@@ -14,20 +14,34 @@
             --text-muted: #8e8e93;
         }
 
-        body {
+        /* Prevent scrolling, bounces, and text highlights globally */
+        html, body {
             background-color: #e0e0e0;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* Removes web page scrolling completely */
+            color: white;
+            
+            /* Removes text selection highlights */
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            
+            /* Removes the blue highlight flash on tap for mobile devices */
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
-            color: white;
-            user-select: none;
-            -webkit-user-select: none;
         }
 
-        /* Phone Frame Container */
+        /* Phone Frame Container adapted seamlessly for desktop and mobile layouts */
         .phone-frame {
             width: 375px;
             height: 712px;
@@ -36,6 +50,7 @@
             padding: 4px; 
             box-shadow: 0 25px 50px rgba(0,0,0,0.3), inset 0 0 2px 1px rgba(255,255,255,0.15);
             position: relative;
+            transform-origin: center center;
         }
 
         /* Hardware Red Power Button */
@@ -51,6 +66,7 @@
             z-index: 2000;
             box-shadow: 1px 2px 4px rgba(0,0,0,0.3);
             transition: transform 0.1s;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .power-button:active {
@@ -98,10 +114,10 @@
 
         /* Fluid Wallpaper Zoom Scale Layers */
         .screen.lock-active .wallpaper {
-            transform: scale(1.25); /* Zoomed out image layer state on lockscreen */
+            transform: scale(1.25);
         }
         .screen.app-open .wallpaper {
-            transform: scale(1.18); /* Zoomed state inside app */
+            transform: scale(1.18);
         }
 
         /* Status Bar */
@@ -119,7 +135,7 @@
             right: 0;
             z-index: 10;
             text-shadow: 0 2px 4px rgba(0,0,0,0.4);
-            transition: color 0.35s ease, opacity 0.2s;
+            transition: color 0.35s ease;
         }
 
         .screen.app-open .status-bar {
@@ -144,7 +160,6 @@
             transition: opacity 0.35s ease, transform 0.6s cubic-bezier(0.25, 1, 0.3, 1);
         }
 
-        /* Animate layout downward when locked or screen app scales up */
         .screen.lock-active .home-screen {
             opacity: 0;
             transform: scale(0.85);
@@ -170,6 +185,7 @@
             flex-direction: column;
             align-items: center;
             cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .app-icon {
@@ -261,7 +277,7 @@
             color: var(--text-muted);
         }
 
-        /* Navigation Home Bar / Lock Unlock Gesture Zone */
+        /* Navigation Home Bar Zone */
         .home-bar-zone {
             position: absolute;
             bottom: 0;
@@ -275,6 +291,7 @@
             box-sizing: border-box;
             z-index: 1100;
             cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .home-bar {
@@ -361,11 +378,26 @@
             opacity: 0;
             pointer-events: none;
         }
+
+        /* CSS Media Queries to adapt perfectly when viewed natively inside a mobile browser screen */
+        @media (max-width: 450px) or (max-height: 750px) {
+            body {
+                background-color: #000000; /* Darker clean blend for pure framing */
+            }
+            .phone-frame {
+                transform: scale(0.85); /* Scales down uniformly to fit compact mobile displays */
+            }
+        }
+        @media (max-width: 340px) {
+            .phone-frame {
+                transform: scale(0.72);
+            }
+        }
     </style>
 </head>
 <body>
 
-    <div class="phone-frame">
+    <div class="phone-frame" id="deviceFrame">
         
         <div class="power-button" id="hardwarePowerBtn"></div>
 
@@ -404,15 +436,15 @@
                 <div class="settings-list">
                     <div class="settings-item">
                         <span>System Name</span>
-                        <span>KiantUI v2.0</span>
+                        <span>KiantUI v2.1</span>
                     </div>
                     <div class="settings-item">
-                        <span>Power Actions</span>
-                        <span>Red Hardware Key</span>
+                        <span>Mobile Optimization</span>
+                        <span>No-Scroll Frame</span>
                     </div>
                     <div class="settings-item">
-                        <span>Lock Status</span>
-                        <span>Biometric Secured</span>
+                        <span>UI Highlight</span>
+                        <span>Clean Tap Native</span>
                     </div>
                     <div class="settings-item" style="color: var(--ios-accent); cursor: pointer;">
                         <span>System Update</span>
@@ -452,6 +484,13 @@
         }
         setInterval(updateClock, 1000);
         updateClock();
+
+        // Prevent accidental default mobile pull-down-to-refresh movements outside container 
+        document.addEventListener('touchmove', function(e) {
+            if (e.target.closest('#phoneScreen') === null) {
+                e.preventDefault();
+            }
+        }, { passive: false });
 
         // Hardware Power Toggle Action Hook
         hardwarePowerBtn.addEventListener('click', () => {
@@ -530,7 +569,7 @@
                         phoneScreen.classList.remove('lock-active');
                         phoneScreen.classList.remove('unlock-anim');
                         isLocked = false;
-                    }, 450); // Matches runtime duration properties perfectly
+                    }, 450); 
                 } else if (settingsApp.classList.contains('active')) {
                     // App termination sequence action
                     closeSettings();
