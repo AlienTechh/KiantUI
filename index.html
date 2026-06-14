@@ -63,7 +63,7 @@
             background: linear-gradient(to bottom, #ff3b30, #cc241d);
             border-radius: 0 3px 3px 0;
             cursor: pointer;
-            z-index: 2000;
+            z-index: 2500;
             box-shadow: 1px 2px 4px rgba(0,0,0,0.3);
             transition: transform 0.1s;
         }
@@ -90,7 +90,7 @@
             height: 17px;
             background-color: #000000;
             border-radius: 50%;
-            z-index: 1000;
+            z-index: 2200; 
             box-shadow: inset 0 0 1px rgba(255,255,255,0.2);
             pointer-events: none;
         }
@@ -103,7 +103,7 @@
             width: 100%;
             height: 100%;
             z-index: 1;
-            transition: transform var(--anim-speed) var(--anim-curve), filter var(--anim-speed) var(--anim-curve);
+            transition: transform var(--anim-speed) var(--anim-curve), filter var(--anim-speed) var(--anim-curve), opacity 0.4s ease;
         }
 
         .wallpaper-layer {
@@ -127,6 +127,23 @@
             transform: scale(var(--zoom-level-app));
             filter: blur(var(--blur-intensity));
         }
+        
+        /* AOD Wallpaper State */
+        .screen.aod-active .wallpaper-container {
+            opacity: 0.15;
+            transform: scale(1);
+            filter: brightness(0.25) contrast(1.2);
+        }
+
+        /* Gesture Activation Hotzones */
+        .top-edge-sensor {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 35px;
+            z-index: 1090;
+        }
 
         .status-bar {
             height: 44px;
@@ -143,6 +160,7 @@
             z-index: 10;
             text-shadow: 0 2px 4px rgba(0,0,0,0.4);
             transition: color calc(var(--anim-speed) * 0.6) ease;
+            pointer-events: none;
         }
 
         .screen.app-open .status-bar {
@@ -166,7 +184,8 @@
             transition: opacity calc(var(--anim-speed) * 0.6) ease, transform var(--anim-speed) var(--anim-curve);
         }
 
-        .screen.lock-active .home-screen {
+        .screen.lock-active .home-screen,
+        .screen.aod-active .home-screen {
             opacity: 0;
             transform: scale(0.85);
             pointer-events: none;
@@ -177,11 +196,50 @@
             pointer-events: none;
         }
 
+        /* Live Interactive Widgets Layout */
+        .widget-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+            width: 100%;
+            padding: 0 22px;
+            box-sizing: border-box;
+            margin-bottom: 8px;
+            margin-top: 10px;
+        }
+        .live-widget {
+            background: rgba(255, 255, 255, 0.22);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 20px;
+            height: 105px;
+            padding: 14px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #fff;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        .live-widget:active { transform: scale(0.95); }
+        .widget-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.7; }
+        
+        .weather-info { display: flex; align-items: center; justify-content: space-between; }
+        .weather-temp { font-size: 26px; font-weight: 300; }
+        .weather-icon-anim { font-size: 28px; animation: weatherFloat 2.5s ease-in-out infinite; }
+        @keyframes weatherFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+
+        .cal-date { font-size: 24px; font-weight: 700; color: #ff453a; line-height: 1; }
+        .cal-event { font-size: 12px; font-weight: 500; opacity: 0.9; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
         .app-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 22px;
-            padding: 22px;
+            padding: 16px 22px;
             width: 100%;
             box-sizing: border-box;
         }
@@ -206,7 +264,6 @@
             position: relative;
         }
 
-        /* Mono / Tint Overlay Engine */
         .app-icon::after {
             content: '';
             position: absolute;
@@ -263,8 +320,8 @@
             pointer-events: auto;
         }
 
-        #settingsApp { background: #f2f2f7; color: var(--text-dark); transform-origin: 52px 114px; }
-        #customizeApp { background: #ffffff; color: var(--text-dark); transform-origin: 134px 114px; }
+        #settingsApp { background: #f2f2f7; color: var(--text-dark); }
+        #customizeApp { background: #ffffff; color: var(--text-dark); }
 
         .settings-header-wrapper {
             position: relative;
@@ -481,7 +538,7 @@
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.4);
-            z-index: 2000;
+            z-index: 2300;
             display: none;
             align-items: flex-end;
             justify-content: center;
@@ -515,6 +572,74 @@
         .sheet-btn:last-child { border-bottom: none; }
         .sheet-btn.cancel { font-weight: 600; color: #ff3b30; }
 
+        /* Unified Slide down Quick Panels Panel */
+        .pull-panel {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(242, 242, 247, 0.82);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            z-index: 2000; 
+            transform: translateY(-100%);
+            transition: transform 0.4s cubic-bezier(0.25, 1, 0.3, 1);
+            box-sizing: border-box;
+            padding: 64px 20px 20px 20px;
+            color: black;
+            display: flex;
+            flex-direction: column;
+        }
+        .pull-panel.active { transform: translateY(0); }
+        .panel-heading { font-size: 22px; font-weight: 700; margin-bottom: 15px; color: #000; }
+
+        /* Notification Area */
+        .noti-scroll-area { flex: 1; overflow-y: auto; margin-bottom: 14px; }
+        .noti-card {
+            background: #ffffff;
+            padding: 14px;
+            border-radius: 16px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+        }
+        .noti-header { font-size: 12px; font-weight: 600; color: #666; display: flex; justify-content: space-between; margin-bottom: 4px; }
+        .noti-body { font-size: 14px; font-weight: 500; color: #000; }
+
+        /* Control Tray Component */
+        .control-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 15px; }
+        .toggle-tile {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+            font-weight: 600;
+            font-size: 14px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+        }
+        .toggle-tile.enabled { background: var(--ios-accent); color: white; }
+        .toggle-icon { font-size: 20px; }
+
+        /* Always-On Display Mode Screen Overlay */
+        .aod-view {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.72); 
+            z-index: 1400;
+            opacity: 0;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.4s ease;
+        }
+        .screen.aod-active .aod-view { opacity: 1; pointer-events: auto; }
+        .aod-clock { font-size: 56px; font-weight: 200; color: rgba(255,255,255,0.85); margin-bottom: 8px; }
+        .aod-meta { font-size: 14px; color: rgba(255,255,255,0.5); display: flex; gap: 10px; align-items: center; }
+        .aod-dots { font-size: 16px; letter-spacing: 4px; color: var(--ios-accent); margin-top: 15px; opacity: 0.8; }
+
         /* System Base Overlays */
         .home-bar-zone {
             position: absolute;
@@ -537,12 +662,14 @@
             display: flex; flex-direction: column; justify-content: space-between; align-items: center;
             padding: 70px 24px 60px 24px; box-sizing: border-box;
             opacity: 0; pointer-events: none; transform: translateY(0);
+            transition: opacity 0.3s ease;
         }
         
-        /* Configurable Unlock Animations System */
-        .screen.lock-active .lockscreen-view { opacity: 1; pointer-events: auto; transform: translateY(0) scale(1); transition: opacity 0.3s ease, transform var(--anim-speed) var(--anim-curve); }
+        .screen.lock-active .lockscreen-view { opacity: 1; pointer-events: auto; transform: translateY(0) scale(1); }
         
-        /* Unlock Animation styles applied dynamically via JavaScript classes */
+        /* Hide regular lockscreen clock and hints during active AOD mode */
+        .screen.aod-active .lockscreen-view { opacity: 0; pointer-events: none; }
+
         .screen.lock-active.unlock-fade.unlock-anim .lockscreen-view { opacity: 0; transition: opacity var(--anim-speed) ease; }
         .screen.lock-active.unlock-slideup.unlock-anim .lockscreen-view { opacity: 0; transform: translateY(-100%); transition: opacity var(--anim-speed) ease, transform var(--anim-speed) var(--anim-curve); }
         .screen.lock-active.unlock-scale.unlock-anim .lockscreen-view { opacity: 0; transform: scale(1.4); transition: opacity var(--anim-speed) ease, transform var(--anim-speed) var(--anim-curve); }
@@ -558,7 +685,7 @@
         .blackout-layer {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background-color: #000000; z-index: 1500;
+            background-color: #000000; z-index: 1600;
             opacity: 1; pointer-events: auto;
             transition: opacity 0.15s linear;
         }
@@ -578,8 +705,48 @@
 
         <div class="screen" id="phoneScreen">
             <div class="blackout-layer" id="systemBlackout"></div>
+            
+            <div class="aod-view" id="aodView">
+                <div class="aod-clock system-time">12:00</div>
+                <div class="aod-meta">
+                    <span>🔋 84%</span>
+                    <span>☁️ 24°C</span>
+                </div>
+                <div class="aod-dots">💬 • ✉️</div>
+            </div>
+
             <div class="punch-hole"></div>
             
+            <div class="top-edge-sensor" id="topSensorZone"></div>
+            
+            <div class="pull-panel" id="unifiedSystemPanel">
+                <div class="panel-heading" style="margin-bottom: 10px;">Control Center</div>
+                
+                <div class="control-grid">
+                    <div class="toggle-tile enabled" onclick="toggleControlTile(this)">
+                        <span class="toggle-icon">📶</span><span>Wi-Fi</span>
+                    </div>
+                    <div class="toggle-tile enabled" onclick="toggleControlTile(this)">
+                        <span class="toggle-icon">🎧</span><span>Bluetooth</span>
+                    </div>
+                </div>
+
+                <div class="panel-heading" style="font-size: 18px; margin-bottom: 8px; margin-top: 5px;">Notifications</div>
+                
+                <div class="noti-scroll-area">
+                    <div class="noti-card">
+                        <div class="noti-header"><span>Messages</span><span>Just now</span></div>
+                        <div class="noti-body">Alex: The live widget animation templates are running flawlessly.</div>
+                    </div>
+                    <div class="noti-card">
+                        <div class="noti-header"><span>Weather Engine</span><span>1h ago</span></div>
+                        <div class="noti-body">Thunderstorm watch issued for your current operational area.</div>
+                    </div>
+                </div>
+
+                <button class="sheet-btn" style="background: #e5e5ea; border-radius: 12px; padding: 12px; font-weight: 600; margin-top: auto; color: var(--text-dark);" onclick="closeSystemPanel()">Dismiss Panel</button>
+            </div>
+
             <div class="wallpaper-container" id="wallpaperContainer">
                 <div class="wallpaper-layer" id="lockscreenWallpaper" style="background-image: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1000&q=90');"></div>
                 <div class="wallpaper-layer" id="homescreenWallpaper" style="background-image: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1000&q=90');"></div>
@@ -599,12 +766,32 @@
             </div>
 
             <div class="home-screen">
+                
+                <div class="widget-row">
+                    <div class="live-widget" onclick="cycleWeatherState()">
+                        <div class="widget-title">Weather</div>
+                        <div class="weather-info">
+                            <div class="weather-temp" id="widgetTemp">24°C</div>
+                            <div class="weather-icon-anim" id="widgetWeatherIcon">☀️</div>
+                        </div>
+                        <div style="font-size: 11px; opacity: 0.8;" id="widgetWeatherDesc">Sunny Clear</div>
+                    </div>
+
+                    <div class="live-widget" onclick="cycleCalendarEvent()">
+                        <div class="widget-title">Calendar</div>
+                        <div>
+                            <div class="cal-date" id="widgetCalDay">14</div>
+                            <div class="cal-event" id="widgetCalEvent">Design Review Meeting</div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="app-grid">
-                    <div class="app-icon-wrapper" onclick="openApp('settingsApp')">
+                    <div class="app-icon-wrapper" onclick="openApp('settingsApp', this)">
                         <div class="app-icon settings">⚙️</div>
                         <div class="app-label">Settings</div>
                     </div>
-                    <div class="app-icon-wrapper" onclick="openApp('customizeApp')">
+                    <div class="app-icon-wrapper" onclick="openApp('customizeApp', this)">
                         <div class="app-icon customize">🎨</div>
                         <div class="app-label">Customize</div>
                     </div>
@@ -719,7 +906,6 @@
                             <div class="wp-thumb" style="background-image: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=400&q=80');" onclick="promptWallpaperTarget('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1000&q=90')"></div>
                             <div class="wp-thumb" style="background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=400&q=80');" onclick="promptWallpaperTarget('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1000&q=90')"></div>
                             <div class="wp-thumb" style="background-image: url('https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=400&q=80');" onclick="promptWallpaperTarget('https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=1000&q=90')"></div>
-                            
                             <div class="wp-thumb custom-upload-btn" onclick="triggerCustomGalleryUpload()">
                                 📁
                                 <span>Custom Gallery</span>
@@ -783,15 +969,34 @@
     </div>
 
     <script>
-        let isPowerOn = false;
+        let powerState = 0; 
         let isLocked = true;
         let currentActiveAppId = null;
         let pendingWallpaperUrl = '';
 
+        let weatherIndex = 0;
+        const weatherPresets = [
+            { temp: "24°C", icon: "☀️", desc: "Sunny Clear" },
+            { temp: "18°C", icon: "🌧️", desc: "Light Drizzle" },
+            { temp: "29°C", icon: "⛅", desc: "Partly Cloudy" },
+            { temp: "12°C", icon: "❄️", desc: "Snow Flurry" }
+        ];
+
+        let calendarIndex = 0;
+        const calendarPresets = [
+            { day: "14", event: "Design Review Meeting" },
+            { day: "15", event: "KiantUI Coding Lab" },
+            { day: "18", event: "Weekend Roadtrip" },
+            { day: "22", event: "Dentist Checkup 🦷" }
+        ];
+
         const phoneScreen = document.getElementById('phoneScreen');
         const gestureZone = document.getElementById('gestureZone');
+        const topSensorZone = document.getElementById('topSensorZone');
         const hardwarePowerBtn = document.getElementById('hardwarePowerBtn');
         const homeIndicatorLine = document.getElementById('homeIndicatorLine');
+        const unifiedSystemPanel = document.getElementById('unifiedSystemPanel');
+        const systemBlackout = document.getElementById('systemBlackout');
         
         const mainSettingsMenu = document.getElementById('mainSettingsMenu');
         const aboutDevicePage = document.getElementById('aboutDevicePage');
@@ -803,7 +1008,21 @@
         const homescreenWallpaper = document.getElementById('homescreenWallpaper');
         const hiddenGalleryInput = document.getElementById('hiddenGalleryInput');
 
-        // Dynamic Configuration Sync Engine
+        function cycleWeatherState() {
+            weatherIndex = (weatherIndex + 1) % weatherPresets.length;
+            const current = weatherPresets[weatherIndex];
+            document.getElementById('widgetTemp').textContent = current.temp;
+            document.getElementById('widgetWeatherIcon').textContent = current.icon;
+            document.getElementById('widgetWeatherDesc').textContent = current.desc;
+        }
+
+        function cycleCalendarEvent() {
+            calendarIndex = (calendarIndex + 1) % calendarPresets.length;
+            const current = calendarPresets[calendarIndex];
+            document.getElementById('widgetCalDay').textContent = current.day;
+            document.getElementById('widgetCalEvent').textContent = current.event;
+        }
+
         function updateAnimationSystem() {
             const speed = document.getElementById('speedSlider').value;
             const curve = document.getElementById('curveSelector').value;
@@ -827,7 +1046,19 @@
             root.style.setProperty('--blur-intensity', blurToggle ? '12px' : '0px');
         }
 
-        // Wallpaper Selector Actions
+        function toggleControlTile(tileElement) {
+            tileElement.classList.toggle('enabled');
+        }
+
+        function openSystemPanel() {
+            if (powerState !== 2 || isLocked) return; 
+            unifiedSystemPanel.classList.add('active');
+        }
+
+        function closeSystemPanel() {
+            unifiedSystemPanel.classList.remove('active');
+        }
+
         function promptWallpaperTarget(url) {
             pendingWallpaperUrl = url;
             wallpaperActionSheet.style.display = 'flex';
@@ -878,35 +1109,55 @@
             if (e.target.closest('#phoneScreen') === null) e.preventDefault();
         }, { passive: false });
 
-        // Hardware Power Button Listener
+        // Power Button Core Logic
         hardwarePowerBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            if (!isPowerOn) {
-                isPowerOn = true;
-                isLocked = true;
-                phoneScreen.classList.remove('app-open');
+            closeSystemPanel();
+
+            systemBlackout.style.opacity = "0";
+            systemBlackout.style.pointerEvents = "none";
+
+            if (powerState === 0 || powerState === 2) {
+                // Drop into Lockscreen Always-On Display Mode
+                powerState = 1;
                 document.querySelectorAll('.app-window').forEach(app => app.classList.remove('active'));
                 
-                // Clear any leftover unlock styles safely
-                phoneScreen.classList.remove('unlock-anim', 'unlock-slideup', 'unlock-fade', 'unlock-scale');
+                phoneScreen.classList.remove('system-on', 'app-open');
+                phoneScreen.classList.add('aod-active', 'lock-active');
                 
-                phoneScreen.classList.add('lock-active');
-                phoneScreen.classList.add('system-on');
-                lockscreenWallpaper.style.opacity = "1"; // Show Lock Screen wallpaper image instantly
+                lockscreenWallpaper.style.opacity = "1"; 
+                homeIndicatorLine.style.opacity = "0";
+            } else if (powerState === 1) {
+                // Wake up from AOD to bright Lockscreen frame
+                powerState = 2;
+                isLocked = true;
+                phoneScreen.classList.remove('aod-active');
+                phoneScreen.classList.add('system-on', 'lock-active');
+                
+                lockscreenWallpaper.style.opacity = "1"; 
                 homeIndicatorLine.style.opacity = "1";
                 currentActiveAppId = null;
-                showMainSettings(); 
-            } else {
-                isPowerOn = false;
-                phoneScreen.classList.remove('system-on');
-                homeIndicatorLine.style.opacity = "0";
+                showMainSettings();
             }
         });
 
-        function openApp(appWindowId) {
-            if (!isPowerOn || isLocked) return;
+        function openApp(appWindowId, elementClicked) {
+            if (powerState !== 2 || isLocked) return;
+            
+            const appWindow = document.getElementById(appWindowId);
+            
+            if (elementClicked) {
+                const iconRect = elementClicked.getBoundingClientRect();
+                const screenRect = phoneScreen.getBoundingClientRect();
+                
+                const originX = (iconRect.left + (iconRect.width / 2)) - screenRect.left;
+                const originY = (iconRect.top + (iconRect.height / 2)) - screenRect.top;
+                
+                appWindow.style.transformOrigin = `${originX}px ${originY}px`;
+            }
+
             phoneScreen.classList.add('app-open');
-            document.getElementById(appWindowId).classList.add('active');
+            appWindow.classList.add('active');
             currentActiveAppId = appWindowId;
         }
 
@@ -933,46 +1184,69 @@
             settingsTitle.classList.remove('centered'); 
         }
 
-        // Gesture Matrix Engine
+        // Gesture Processing Systems
         let startY = 0;
         let isSwiping = false;
+        let targetSensorMode = '';
 
         gestureZone.addEventListener('touchstart', (e) => {
-            if (!isPowerOn) return;
+            if (powerState !== 2) return;
             startY = e.touches[0].clientY;
             isSwiping = true;
+            targetSensorMode = 'bottom';
         }, { passive: true });
 
-        gestureZone.addEventListener('touchend', (e) => {
+        topSensorZone.addEventListener('touchstart', (e) => {
+            if (powerState !== 2 || isLocked) return;
+            startY = e.touches[0].clientY;
+            isSwiping = true;
+            targetSensorMode = 'top';
+        }, { passive: true });
+
+        document.addEventListener('touchend', (e) => {
             if (!isSwiping) return;
-            evaluateGesture(startY, e.changedTouches[0].clientY);
+            evaluateGestureMatrix(startY, e.changedTouches[0].clientY);
             isSwiping = false;
         }, { passive: true });
 
+        // Desktop Pointer Listeners
         gestureZone.addEventListener('mousedown', (e) => {
-            if (!isPowerOn) return;
+            if (powerState !== 2) return;
             startY = e.clientY;
             isSwiping = true;
-            
+            targetSensorMode = 'bottom';
+            setupMouseListeners();
+        });
+
+        topSensorZone.addEventListener('mousedown', (e) => {
+            if (powerState !== 2 || isLocked) return;
+            startY = e.clientY;
+            isSwiping = true;
+            targetSensorMode = 'top';
+            setupMouseListeners();
+        });
+
+        function setupMouseListeners() {
             function onMouseUp(upEvent) {
                 if (isSwiping) {
-                    evaluateGesture(startY, upEvent.clientY);
+                    evaluateGestureMatrix(startY, upEvent.clientY);
                     isSwiping = false;
                 }
                 document.removeEventListener('mouseup', onMouseUp);
             }
             document.addEventListener('mouseup', onMouseUp);
-        });
+        }
 
-        function evaluateGesture(start, end) {
-            if (start - end > 25) { 
+        function evaluateGestureMatrix(start, end) {
+            const distance = end - start;
+            
+            if (targetSensorMode === 'bottom' && distance < -25) { 
                 if (isLocked) {
                     const chosenEffect = document.getElementById('unlockAnimSelector').value;
                     
-                    // Apply user-defined custom unlock animation configurations
                     phoneScreen.classList.add(chosenEffect);
                     phoneScreen.classList.add('unlock-anim');
-                    lockscreenWallpaper.style.opacity = "0"; // Smooth transition blend out lock screen image to reveal home image
+                    lockscreenWallpaper.style.opacity = "0"; 
                     
                     setTimeout(() => {
                         phoneScreen.classList.remove('lock-active');
@@ -982,6 +1256,10 @@
                 } else {
                     closeCurrentActiveApp();
                 }
+            }
+            
+            if (targetSensorMode === 'top' && distance > 25) {
+                openSystemPanel();
             }
         }
     </script>
