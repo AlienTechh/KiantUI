@@ -12,9 +12,14 @@
             --ios-accent: #007aff;
             --text-dark: #000000;
             --text-muted: #8e8e93;
+            
+            /* Customization System Default Variables */
+            --anim-speed: 0.55s;
+            --anim-curve: cubic-bezier(0.25, 1, 0.3, 1);
+            --zoom-level-lock: 1.25;
+            --zoom-level-app: 1.18;
         }
 
-        /* Prevent scrolling, bounces, and text highlights globally */
         html, body {
             background-color: #e0e0e0;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -22,16 +27,10 @@
             padding: 0;
             width: 100%;
             height: 100%;
-            overflow: hidden; /* Removes web page scrolling completely */
+            overflow: hidden; 
             color: white;
-            
-            /* Removes text selection highlights */
             user-select: none;
             -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            
-            /* Removes the blue highlight flash on tap for mobile devices */
             -webkit-tap-highlight-color: transparent;
         }
 
@@ -41,7 +40,6 @@
             align-items: center;
         }
 
-        /* Phone Frame Container adapted seamlessly for desktop and mobile layouts */
         .phone-frame {
             width: 375px;
             height: 712px;
@@ -53,7 +51,6 @@
             transform-origin: center center;
         }
 
-        /* Hardware Red Power Button */
         .power-button {
             position: absolute;
             right: -6px;
@@ -66,14 +63,12 @@
             z-index: 2000;
             box-shadow: 1px 2px 4px rgba(0,0,0,0.3);
             transition: transform 0.1s;
-            -webkit-tap-highlight-color: transparent;
         }
 
         .power-button:active {
             transform: translateX(-2px);
         }
 
-        /* Screen Wrapper */
         .screen {
             width: 100%;
             height: 100%;
@@ -83,7 +78,6 @@
             background-color: #000;
         }
 
-        /* Hardware Display Punch Hole */
         .punch-hole {
             position: absolute;
             top: 10px;
@@ -98,7 +92,6 @@
             pointer-events: none;
         }
 
-        /* High-Quality Cinematic Mountain Wallpaper */
         .wallpaper {
             position: absolute;
             top: 0;
@@ -108,19 +101,18 @@
             background-image: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1000&q=90');
             background-size: cover;
             background-position: center;
-            transition: transform 0.6s cubic-bezier(0.25, 1, 0.3, 1);
+            transition: transform var(--anim-speed) var(--anim-curve);
             z-index: 1;
         }
 
-        /* Fluid Wallpaper Zoom Scale Layers */
+        /* Dynamically handled dynamic zooms */
         .screen.lock-active .wallpaper {
-            transform: scale(1.25);
+            transform: scale(var(--zoom-level-lock));
         }
         .screen.app-open .wallpaper {
-            transform: scale(1.18);
+            transform: scale(var(--zoom-level-app));
         }
 
-        /* Status Bar */
         .status-bar {
             height: 44px;
             padding: 0 26px;
@@ -135,7 +127,7 @@
             right: 0;
             z-index: 10;
             text-shadow: 0 2px 4px rgba(0,0,0,0.4);
-            transition: color 0.35s ease;
+            transition: color calc(var(--anim-speed) * 0.6) ease;
         }
 
         .screen.app-open .status-bar {
@@ -143,7 +135,6 @@
             text-shadow: none;
         }
 
-        /* Home Screen UI */
         .home-screen {
             position: absolute;
             top: 0;
@@ -157,7 +148,7 @@
             align-items: center;
             z-index: 2;
             transform: scale(1);
-            transition: opacity 0.35s ease, transform 0.6s cubic-bezier(0.25, 1, 0.3, 1);
+            transition: opacity calc(var(--anim-speed) * 0.6) ease, transform var(--anim-speed) var(--anim-curve);
         }
 
         .screen.lock-active .home-screen {
@@ -185,7 +176,6 @@
             flex-direction: column;
             align-items: center;
             cursor: pointer;
-            -webkit-tap-highlight-color: transparent;
         }
 
         .app-icon {
@@ -207,6 +197,10 @@
         .app-icon.settings {
             background: linear-gradient(135deg, #a2a2a7, #636366);
         }
+        
+        .app-icon.customize {
+            background: linear-gradient(135deg, #ff9500, #ff5e3a);
+        }
 
         .app-label {
             font-size: 12px;
@@ -217,50 +211,121 @@
             text-shadow: 0 2px 4px rgba(0,0,0,0.8);
         }
 
-        /* Settings App View */
-        .app-view {
+        /* Generic App Window Architecture */
+        .app-window {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: #f2f2f7; 
-            color: var(--text-dark); 
             z-index: 5;
             display: flex;
             flex-direction: column;
             padding-top: 54px;
             box-sizing: border-box;
-            
+            overflow: hidden;
             opacity: 0;
             border-radius: var(--screen-radius);
             transform: scale(0.05);
-            transform-origin: 52px 114px; 
-            transition: transform 0.55s cubic-bezier(0.25, 1, 0.3, 1), 
-                        opacity 0.25s linear, 
-                        border-radius 0.55s cubic-bezier(0.25, 1, 0.3, 1);
             pointer-events: none;
+            transition: transform var(--anim-speed) var(--anim-curve), 
+                        opacity calc(var(--anim-speed) * 0.45) linear, 
+                        border-radius var(--anim-speed) var(--anim-curve);
         }
 
-        .app-view.active {
+        .app-window.active {
             opacity: 1;
-            transform: scale(1);
+            transform: scale(1) !important;
             border-radius: var(--app-inner-radius);
             pointer-events: auto;
         }
 
+        /* Specific App Background Mappings */
+        #settingsApp { background: #f2f2f7; color: var(--text-dark); transform-origin: 52px 114px; }
+        #customizeApp { background: #ffffff; color: var(--text-dark); transform-origin: 134px 114px; }
+
+        /* Master Header Configurations */
+        .settings-header-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #e5e5ea;
+            height: 60px;
+            padding: 0 16px;
+            z-index: 10;
+        }
+
         .settings-header {
-            padding: 15px 24px;
             font-size: 28px;
             font-weight: 700;
-            border-bottom: 1px solid #e5e5ea; 
+            width: 100%;
+            transition: all var(--anim-speed) var(--anim-curve);
+        }
+        
+        /* Pushes Header Elements cleanly into Absolute Middle Spaces */
+        .settings-header.centered {
+            text-align: center;
+            padding-right: 55px; /* Perfect balance balancing out back arrow offset visually */
+        }
+
+        .settings-back-btn {
+            display: none;
+            background: transparent;
+            border: none;
+            color: var(--ios-accent);
+            font-size: 17px;
+            font-weight: 400;
+            cursor: pointer;
+            padding: 0;
+            align-items: center;
+            gap: 4px;
+            z-index: 15;
+            white-space: nowrap;
+        }
+
+        .settings-viewport {
+            position: relative;
+            flex: 1;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .settings-page {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+            transition: transform var(--anim-speed) var(--anim-curve), opacity var(--anim-speed) ease;
         }
 
         .settings-list {
             padding: 16px 20px;
+            transform: translateX(0);
+            opacity: 1;
         }
 
-        .settings-item {
+        .settings-list.slide-out {
+            transform: translateX(-100%);
+            opacity: 0;
+        }
+
+        .about-device-page {
+            transform: translateX(100%);
+            opacity: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .about-device-page.slide-in {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        /* Generic Dynamic Panels */
+        .ui-panel-item {
             background: #ffffff; 
             padding: 16px;
             border-radius: 14px;
@@ -272,12 +337,71 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.03);
             border: 1px solid rgba(0,0,0,0.02);
         }
-
-        .settings-item span:last-child {
-            color: var(--text-muted);
+        
+        /* Embedded styling structures matching submenus */
+        #customizeApp .ui-panel-item {
+            background: #f2f2f7;
         }
 
-        /* Navigation Home Bar Zone */
+        .ui-panel-item.clickable { cursor: pointer; }
+        .ui-panel-item span:last-child { color: var(--text-muted); }
+
+        .device-image-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-top: 16px;
+            margin-bottom: 16px;
+        }
+
+        .device-image {
+            width: 220px; 
+            height: auto;
+            border-radius: 24px;
+            box-shadow: 0 10px 28px rgba(0,0,0,0.15);
+            background-color: #fff;
+        }
+
+        .about-info-list, .customize-container {
+            width: 100%;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+
+        /* Customization Controls Framework */
+        .customize-scroller {
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 40px;
+        }
+        .customize-title {
+            font-size: 28px;
+            font-weight: 700;
+            padding: 15px 20px 5px 20px;
+        }
+        .customize-section-title {
+            font-size: 13px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin: 15px 22px 8px 22px;
+            font-weight: 600;
+        }
+        .control-slider {
+            width: 100%;
+            margin: 8px 0;
+            accent-color: var(--ios-accent);
+        }
+        .control-select {
+            background: transparent;
+            border: none;
+            font-size: 16px;
+            color: var(--ios-accent);
+            cursor: pointer;
+            outline: none;
+            direction: rtl;
+        }
+
+        /* System Base Overlays */
         .home-bar-zone {
             position: absolute;
             bottom: 0;
@@ -291,7 +415,6 @@
             box-sizing: border-box;
             z-index: 1100;
             cursor: pointer;
-            -webkit-tap-highlight-color: transparent;
         }
 
         .home-bar {
@@ -308,7 +431,6 @@
             box-shadow: none;
         }
 
-        /* Immersive Lock Screen Overlays */
         .lockscreen-view {
             position: absolute;
             top: 0;
@@ -326,41 +448,20 @@
             opacity: 0;
             pointer-events: none;
             transform: translateY(0);
-            transition: opacity 0.4s ease, transform 0.5s cubic-bezier(0.25, 1, 0.3, 1);
+            transition: opacity 0.4s ease, transform var(--anim-speed) var(--anim-curve);
         }
 
-        .screen.lock-active .lockscreen-view {
-            opacity: 1;
-            pointer-events: auto;
-        }
+        .screen.lock-active .lockscreen-view { opacity: 1; pointer-events: auto; }
+        .screen.lock-active.unlock-anim .lockscreen-view { opacity: 0; transform: translateY(-100%); }
 
-        .screen.lock-active.unlock-anim .lockscreen-view {
-            opacity: 0;
-            transform: translateY(-100%);
-        }
-
-        .lock-clock {
-            font-size: 72px;
-            font-weight: 200;
-            text-align: center;
-            text-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        }
-
-        .lock-hint {
-            font-size: 15px;
-            font-weight: 500;
-            opacity: 0.8;
-            letter-spacing: 0.3px;
-            animation: bounceSwipeHint 2s infinite;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.4);
-        }
+        .lock-clock { font-size: 72px; font-weight: 200; text-align: center; text-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .lock-hint { font-size: 15px; font-weight: 500; opacity: 0.8; letter-spacing: 0.3px; animation: bounceSwipeHint 2s infinite; text-shadow: 0 2px 4px rgba(0,0,0,0.4); }
 
         @keyframes bounceSwipeHint {
             0%, 100% { transform: translateY(0); opacity: 0.6; }
             50% { transform: translateY(-6px); opacity: 1; }
         }
 
-        /* Direct System Blackout Matrix (Power Off Layer) */
         .blackout-layer {
             position: absolute;
             top: 0;
@@ -371,43 +472,27 @@
             z-index: 1500;
             opacity: 1;
             pointer-events: auto;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.15s linear;
         }
 
-        .screen.system-on .blackout-layer {
-            opacity: 0;
-            pointer-events: none;
-        }
+        .screen.system-on .blackout-layer { opacity: 0; pointer-events: none; }
 
-        /* CSS Media Queries to adapt perfectly when viewed natively inside a mobile browser screen */
         @media (max-width: 450px) or (max-height: 750px) {
-            body {
-                background-color: #000000; /* Darker clean blend for pure framing */
-            }
-            .phone-frame {
-                transform: scale(0.85); /* Scales down uniformly to fit compact mobile displays */
-            }
+            body { background-color: #000000; }
+            .phone-frame { transform: scale(0.85); }
         }
-        @media (max-width: 340px) {
-            .phone-frame {
-                transform: scale(0.72);
-            }
-        }
+        @media (max-width: 340px) { .phone-frame { transform: scale(0.72); } }
     </style>
 </head>
 <body>
 
-    <div class="phone-frame" id="deviceFrame">
-        
+    <div class="phone-frame">
         <div class="power-button" id="hardwarePowerBtn"></div>
 
         <div class="screen" id="phoneScreen">
-            
             <div class="blackout-layer" id="systemBlackout"></div>
-            
             <div class="punch-hole"></div>
-            
-            <div class="wallpaper"></div>
+            <div class="wallpaper" id="systemWallpaper"></div>
             
             <div class="status-bar" id="statusBar">
                 <span class="system-time">12:00</span>
@@ -424,31 +509,112 @@
 
             <div class="home-screen">
                 <div class="app-grid">
-                    <div class="app-icon-wrapper" onclick="openSettings()">
+                    <div class="app-icon-wrapper" onclick="openApp('settingsApp')">
                         <div class="app-icon settings">⚙️</div>
                         <div class="app-label">Settings</div>
+                    </div>
+                    <div class="app-icon-wrapper" onclick="openApp('customizeApp')">
+                        <div class="app-icon customize">🎨</div>
+                        <div class="app-label">Customize</div>
                     </div>
                 </div>
             </div>
 
-            <div class="app-view" id="settingsApp">
-                <div class="settings-header">Settings</div>
-                <div class="settings-list">
-                    <div class="settings-item">
-                        <span>System Name</span>
-                        <span>KiantUI v2.1</span>
+            <div class="app-window" id="settingsApp">
+                <div class="settings-header-wrapper">
+                    <button class="settings-back-btn" id="settingsBackBtn" onclick="showMainSettings()">
+                        <span>&lt;</span> Settings
+                    </button>
+                    <div class="settings-header" id="settingsTitle">Settings</div>
+                </div>
+                
+                <div class="settings-viewport">
+                    <div class="settings-page settings-list" id="mainSettingsMenu">
+                        <div class="ui-panel-item clickable" onclick="showAboutDevice()">
+                            <span>About Device</span>
+                            <span style="color:#c7c7cc;">&gt;</span>
+                        </div>
+                        <div class="ui-panel-item">
+                            <span>Mobile Optimization</span>
+                            <span>No-Scroll Frame</span>
+                        </div>
+                        <div class="ui-panel-item">
+                            <span>UI Highlight</span>
+                            <span>Clean Tap Native</span>
+                        </div>
                     </div>
-                    <div class="settings-item">
-                        <span>Mobile Optimization</span>
-                        <span>No-Scroll Frame</span>
+
+                    <div class="settings-page about-device-page" id="aboutDevicePage">
+                        <div class="device-image-container">
+                            <img src="https://i.postimg.cc/SsjRRSZP/download.jpg" alt="Device Graphic" class="device-image">
+                        </div>
+                        <div class="about-info-list">
+                            <div class="ui-panel-item">
+                                <span>Phone Name</span>
+                                <span>Kiant Note 2 (unreleased)</span>
+                            </div>
+                            <div class="ui-panel-item">
+                                <span>Android Version</span>
+                                <span style="color: var(--text-dark);">15</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="settings-item">
-                        <span>UI Highlight</span>
-                        <span>Clean Tap Native</span>
+                </div>
+            </div>
+
+            <div class="app-window" id="customizeApp">
+                <div class="customize-title">Customize</div>
+                
+                <div class="customize-scroller">
+                    <div class="customize-section-title">Animation Duration</div>
+                    <div class="customize-container">
+                        <div class="ui-panel-item" style="flex-direction: column; align-items: flex-start; gap: 8px;">
+                            <div style="display: flex; justify-content: space-between; width:100%;">
+                                <span>Speed Metric</span>
+                                <span id="speedValue">0.55s</span>
+                            </div>
+                            <input type="range" min="0.1" max="2.0" step="0.05" value="0.55" class="control-slider" id="speedSlider" oninput="updateAnimationSystem()">
+                        </div>
                     </div>
-                    <div class="settings-item" style="color: var(--ios-accent); cursor: pointer;">
-                        <span>System Update</span>
-                        <span>Up to date</span>
+
+                    <div class="customize-section-title">Interpolator Engine</div>
+                    <div class="customize-container">
+                        <div class="ui-panel-item">
+                            <span>Easing Curve</span>
+                            <select class="control-select" id="curveSelector" onchange="updateAnimationSystem()">
+                                <option value="cubic-bezier(0.25, 1, 0.3, 1)">iOS Fluid</option>
+                                <option value="cubic-bezier(0.4, 0, 0.2, 1)">Material Standard</option>
+                                <option value="cubic-bezier(0.34, 1.56, 0.64, 1)">Elastic Bounce</option>
+                                <option value="linear">Linear Tone</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="customize-section-title">Wallpaper Scale Matrix</div>
+                    <div class="customize-container">
+                        <div class="ui-panel-item" style="flex-direction: column; align-items: flex-start; gap: 8px;">
+                            <div style="display: flex; justify-content: space-between; width:100%;">
+                                <span>Lockscreen Zoom Factor</span>
+                                <span id="lockZoomValue">1.25x</span>
+                            </div>
+                            <input type="range" min="1.0" max="1.6" step="0.05" value="1.25" class="control-slider" id="lockZoomSlider" oninput="updateAnimationSystem()">
+                        </div>
+                        
+                        <div class="ui-panel-item" style="flex-direction: column; align-items: flex-start; gap: 8px;">
+                            <div style="display: flex; justify-content: space-between; width:100%;">
+                                <span>Application Zoom Factor</span>
+                                <span id="appZoomValue">1.18x</span>
+                            </div>
+                            <input type="range" min="1.0" max="1.5" step="0.05" value="1.18" class="control-slider" id="appZoomSlider" oninput="updateAnimationSystem()">
+                        </div>
+                    </div>
+                    
+                    <div class="customize-section-title">Home Layout Response</div>
+                    <div class="customize-container">
+                        <div class="ui-panel-item">
+                            <span>Icon Slide Shift</span>
+                            <span style="color: var(--ios-accent);">Enabled</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -461,74 +627,110 @@
     </div>
 
     <script>
-        // System State Matrices
         let isPowerOn = false;
         let isLocked = true;
+        let currentActiveAppId = null;
 
         const phoneScreen = document.getElementById('phoneScreen');
-        const systemBlackout = document.getElementById('systemBlackout');
-        const settingsApp = document.getElementById('settingsApp');
+        const systemWallpaper = document.getElementById('systemWallpaper');
         const gestureZone = document.getElementById('gestureZone');
         const hardwarePowerBtn = document.getElementById('hardwarePowerBtn');
         const homeIndicatorLine = document.getElementById('homeIndicatorLine');
+        
+        const mainSettingsMenu = document.getElementById('mainSettingsMenu');
+        const aboutDevicePage = document.getElementById('aboutDevicePage');
+        const settingsBackBtn = document.getElementById('settingsBackBtn');
+        const settingsTitle = document.getElementById('settingsTitle');
 
-        // Dynamic Clock Implementation
+        // Dynamic System Configuration Variable Sync Engine
+        function updateAnimationSystem() {
+            const speed = document.getElementById('speedSlider').value;
+            const curve = document.getElementById('curveSelector').value;
+            const lockZoom = document.getElementById('lockZoomSlider').value;
+            const appZoom = document.getElementById('appZoomSlider').value;
+
+            document.getElementById('speedValue').textContent = speed + 's';
+            document.getElementById('lockZoomValue').textContent = lockZoom + 'x';
+            document.getElementById('appZoomValue').textContent = appZoom + 'x';
+
+            const root = document.documentElement;
+            root.style.setProperty('--anim-speed', speed + 's');
+            root.style.setProperty('--anim-curve', curve);
+            root.style.setProperty('--zoom-level-lock', lockZoom);
+            root.style.setProperty('--zoom-level-app', appZoom);
+        }
+
         function updateClock() {
             const now = new Date();
             let hours = now.getHours();
             let minutes = now.getMinutes();
             minutes = minutes < 10 ? '0' + minutes : minutes;
-            document.querySelectorAll('.system-time').forEach(el => {
-                el.textContent = `${hours}:${minutes}`;
-            });
+            document.querySelectorAll('.system-time').forEach(el => el.textContent = `${hours}:${minutes}`);
         }
         setInterval(updateClock, 1000);
         updateClock();
 
-        // Prevent accidental default mobile pull-down-to-refresh movements outside container 
         document.addEventListener('touchmove', function(e) {
-            if (e.target.closest('#phoneScreen') === null) {
-                e.preventDefault();
-            }
+            if (e.target.closest('#phoneScreen') === null) e.preventDefault();
         }, { passive: false });
 
-        // Hardware Power Toggle Action Hook
-        hardwarePowerBtn.addEventListener('click', () => {
+        // Instant Hardware Key Engine Hook 
+        hardwarePowerBtn.addEventListener('click', (e) => {
+            e.preventDefault();
             if (!isPowerOn) {
-                // Turn On Cycle -> Show Lock Screen
                 isPowerOn = true;
                 isLocked = true;
                 phoneScreen.classList.remove('app-open');
-                settingsApp.classList.remove('active');
+                document.querySelectorAll('.app-window').forEach(app => app.classList.remove('active'));
                 phoneScreen.classList.remove('unlock-anim');
                 phoneScreen.classList.add('lock-active');
                 phoneScreen.classList.add('system-on');
                 homeIndicatorLine.style.opacity = "1";
+                currentActiveAppId = null;
+                showMainSettings(); 
             } else {
-                // Turn Off Cycle -> Complete Interface Kill
                 isPowerOn = false;
                 phoneScreen.classList.remove('system-on');
                 homeIndicatorLine.style.opacity = "0";
             }
         });
 
-        // App Navigation Controller Actions
-        function openSettings() {
+        // Modular Window Routing Functions
+        function openApp(appWindowId) {
             if (!isPowerOn || isLocked) return;
             phoneScreen.classList.add('app-open');
-            settingsApp.classList.add('active');
+            document.getElementById(appWindowId).classList.add('active');
+            currentActiveAppId = appWindowId;
         }
 
-        function closeSettings() {
+        function closeCurrentActiveApp() {
+            if (!currentActiveAppId) return;
             phoneScreen.classList.remove('app-open');
-            settingsApp.classList.remove('active');
+            document.getElementById(currentActiveAppId).classList.remove('active');
+            currentActiveAppId = null;
         }
 
-        // Advanced Multi-State Swipe Tracking Matrix
+        // Subpage Layout Transitions: Title shifts cleanly to the up middle position
+        function showAboutDevice() {
+            mainSettingsMenu.classList.add('slide-out');
+            aboutDevicePage.classList.add('slide-in');
+            settingsBackBtn.style.display = 'flex';
+            settingsTitle.textContent = 'About';
+            settingsTitle.classList.add('centered'); // Moves title text to absolute up middle
+        }
+
+        function showMainSettings() {
+            mainSettingsMenu.classList.remove('slide-out');
+            aboutDevicePage.classList.remove('slide-in');
+            settingsBackBtn.style.display = 'none';
+            settingsTitle.textContent = 'Settings';
+            settingsTitle.classList.remove('centered'); // Resets title text layout back to standard
+        }
+
+        // Gesture Detection Controller Matrix
         let startY = 0;
         let isSwiping = false;
 
-        // Touch Hooks (Mobile Engine)
         gestureZone.addEventListener('touchstart', (e) => {
             if (!isPowerOn) return;
             startY = e.touches[0].clientY;
@@ -537,12 +739,10 @@
 
         gestureZone.addEventListener('touchend', (e) => {
             if (!isSwiping) return;
-            let endY = e.changedTouches[0].clientY;
-            evaluateGesture(startY, endY);
+            evaluateGesture(startY, e.changedTouches[0].clientY);
             isSwiping = false;
         }, { passive: true });
 
-        // Mouse Hooks (Desktop Engine emulation)
         gestureZone.addEventListener('mousedown', (e) => {
             if (!isPowerOn) return;
             startY = e.clientY;
@@ -558,21 +758,17 @@
             document.addEventListener('mouseup', onMouseUp);
         });
 
-        // Context-Aware Gesture Router 
         function evaluateGesture(start, end) {
-            const distanceUp = start - end;
-            if (distanceUp > 25) { // Minimum threshold reached
+            if (start - end > 25) { 
                 if (isLocked) {
-                    // Unlock Sequence Transition Configuration
                     phoneScreen.classList.add('unlock-anim');
                     setTimeout(() => {
                         phoneScreen.classList.remove('lock-active');
                         phoneScreen.classList.remove('unlock-anim');
                         isLocked = false;
-                    }, 450); 
-                } else if (settingsApp.classList.contains('active')) {
-                    // App termination sequence action
-                    closeSettings();
+                    }, parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--anim-speed')) * 1000 * 0.8); 
+                } else {
+                    closeCurrentActiveApp();
                 }
             }
         }
